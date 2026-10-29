@@ -1,0 +1,15 @@
+[package]
+name = "eclap"
+description = "Namespaced, env-aware clap derives for reusable config types"
+keywords = ["clap", "cli", "config", "env", "derive"]
+categories = ["command-line-interface", "config"]
+readme = "../README.md"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+clap = { workspace = true, features = ["derive", "env", "string"] }
+eclap-derive = { workspace = true }

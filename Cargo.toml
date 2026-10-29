@@ -1,0 +1,18 @@
+[workspace]
+resolver = "3"
+members = ["eclap", "eclap-derive"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/mipsel64/eclap-rs"
+
+[workspace.dependencies]
+eclap-derive = { version = "=0.1.0", path = "eclap-derive" }
+clap = "4.6"
+heck = "0.5"
+proc-macro2 = "1"
+quote = "1"
+syn = "2"
