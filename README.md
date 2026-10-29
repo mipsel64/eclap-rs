@@ -10,7 +10,7 @@ decides the flag names and environment variables.
 
 ```toml
 [dependencies]
-eclap = { git = "https://github.com/mipsel64/eclap-rs" }
+eclap = "0.1"
 ```
 
 ```rust
