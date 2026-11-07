@@ -4,12 +4,16 @@ on:
   push:
     branches: ['main']
   pull_request:
+  # New RustSec advisories appear without a push.
+  schedule:
+    - cron: '23 3 * * *'
 
 permissions:
   contents: read
 
+# The event name keeps a scheduled audit from replacing a pending push run.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -17,6 +21,7 @@ env:
 
 jobs:
   rust:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -33,6 +38,7 @@ jobs:
       - run: cargo package --workspace --locked
 
   msrv:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
@@ -45,3 +51,19 @@ jobs:
       - name: Install Rust
         run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
       - run: cargo test --locked
+
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: '1.96'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --version 0.22.2 --locked --no-default-features --root "$RUNNER_TEMP/cargo-audit"
+      - name: Audit Cargo.lock against RustSec
+        run: '"$RUNNER_TEMP/cargo-audit/bin/cargo-audit" audit --file Cargo.lock'
